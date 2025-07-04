@@ -9,3 +9,16 @@ When you download magic you dont have to install any other stuffs for management
 With reflection protocol, you can connect multiple magic databases.
 
 Magic is not available to use right now, currently being developed by myself.
+
+## magic.toml
+```toml
+[server]
+port = 7070
+bind_address = "127.0.0.1"
+protocol = "reflect" # tcp, udp, reflect
+
+[reflect]
+targets = ["127.0.0.1:7878", "127.0.0.1:7979"]
+```
+
+Get more information with our [website](https://magic.magnesify.com)
