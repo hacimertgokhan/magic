@@ -3,6 +3,7 @@ use crate::config::Config;
 use tokio::net::{TcpListener, TcpStream, UdpSocket};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::RwLock;
+use crate::executor::{execute_command, executor_command_string_parser};
 
 pub async fn start(config: Config) {
     println!("Server started at: {}:{} [{}]",
@@ -38,24 +39,25 @@ async fn start_tcp(addr: String) -> tokio::io::Result<()> {
     loop {
         let (mut socket, remote) = listener.accept().await?;
         println!("New Connection: {}", remote);
-        let store = Arc::clone(&store);
+        let store_clone = Arc::clone(&store);
 
         tokio::spawn(async move {
-            let mut buf = [0; 1024];
-            loop {
-                match socket.read(&mut buf).await {
-                    Ok(0) => break,
-                    Ok(n) => {
-                        println!("Received: {}", String::from_utf8_lossy(&buf[..n]));
-                        let _ = socket.write_all(b"Welcome from magic!").await;
-                    }
-                    Err(e) => {
-                        eprintln!("Byte cannot read: {:?}", e);
-                        break;
+            let mut buf = [0u8; 1024];
+            match socket.read(&mut buf).await {
+                Ok(n) if n > 0 => {
+                    println!("Received: {}", String::from_utf8_lossy(&buf[..n]));
+
+                    let input = String::from_utf8_lossy(&buf[..n]).to_string();
+                    let response = executor_command_string_parser(store_clone, input).await;
+
+                    if let Err(e) = socket.write_all(response.as_bytes()).await {
+                        eprintln!("Response cannot sended: {:?}", e);
                     }
                 }
+                _ => println!("Error on read buffers."),
             }
         });
+
     }
 }
 
