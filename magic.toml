@@ -1,0 +1,9 @@
+
+[server]
+port = 7070
+bind_address = "127.0.0.1"
+protocol = "reflect"
+
+[reflect]
+targets = ["127.0.0.1:7878", "127.0.0.1:7979"]
+
