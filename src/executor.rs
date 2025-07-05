@@ -18,10 +18,13 @@ pub async fn execute_command(store: &MagicStore, cmd: MagicCommand) -> String {
             store.write().await.remove(&key);
             format!("Dispelled: {}", key)
         }
+        MagicCommand::SendTo { target, value } => {
+            // This will be handled in the reflect server for sending to specific IP
+            format!("Sending '{}' to {}", value, target)
+        }
         MagicCommand::Unknown => "Unknown command.".to_string(),
     }
 }
-
 
 pub async fn executor_command_string_parser(store: MagicStore, command: String) -> String {
     let parts: Vec<&str> = command.trim().split_whitespace().collect();
@@ -36,6 +39,11 @@ pub async fn executor_command_string_parser(store: MagicStore, command: String) 
     } else if parts.len() >= 2 && parts[0].eq_ignore_ascii_case("DISPEL") {
         let key = parts[1].to_string();
         execute_command(&store, MagicCommand::Dispel { key }).await
+    } else if parts.len() >= 4 && parts[0].eq_ignore_ascii_case("SUMMON") && parts[2].eq_ignore_ascii_case("TO") {
+        // SUMMON <value> TO <ip:port>
+        let value = parts[1].to_string();
+        let target = parts[3].to_string();
+        execute_command(&store, MagicCommand::SendTo { target, value }).await
     } else {
         execute_command(&store, MagicCommand::Unknown).await
     }

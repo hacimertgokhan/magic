@@ -1,23 +1,37 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct ReflectConfig {
-    pub targets: Vec<String>,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    pub server: ServerConfig,
+    pub reflect: ReflectConfig,
+    pub user: UserConfig,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServerConfig {
     pub port: u16,
     pub bind_address: String,
     pub protocol: Option<String>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct Config {
-    pub server: ServerConfig,
-    pub reflect: ReflectConfig,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReflectConfig {
+    pub targets: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserConfig {
+    pub username: String,
+    pub password: String,
+    pub targets: Option<HashMap<String, UserCredentials>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserCredentials {
+    pub username: String,
+    pub password: String,
 }
 
 pub fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
