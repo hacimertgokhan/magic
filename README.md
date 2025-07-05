@@ -12,13 +12,26 @@ Magic is not available to use right now, currently being developed by myself.
 
 ## magic.toml
 ```toml
+[user]
+username = "admin"
+password = "admin123"
+
 [server]
 port = 7070
 bind_address = "127.0.0.1"
-protocol = "reflect" # tcp, udp, reflect
+protocol = "reflect"
 
 [reflect]
 targets = ["127.0.0.1:7878", "127.0.0.1:7979"]
+
+# Reflect targets, create a new section if want to action with password.
+[user.targets."127.0.0.1:7878"]
+username = "user1"
+password = "pass1"
+
+[user.targets."127.0.0.1:7979"]
+username = "user2"
+password = "pass2"
 ```
 
 Get more information with our [website](https://magic.magnesify.com)
